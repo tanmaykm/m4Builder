@@ -1,0 +1,40 @@
+language: julia
+os:
+  - linux
+julia:
+  - 0.6
+notifications:
+  email: false
+git:
+  depth: 99999999
+cache:
+  timeout: 1000
+  directories:
+    - downloads
+env:
+  global:
+    - BINARYBUILDER_DOWNLOADS_CACHE=downloads
+    - BINARYBUILDER_AUTOMATIC_APPLE=false
+sudo: required
+
+# Before anything else, get the latest versions of things
+before_script:
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryProvider.jl")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryBuilder.jl"); Pkg.build()'
+
+script:
+  - julia build_tarballs.jl
+
+
+deploy:
+    provider: releases
+    api_key:
+        # Note; this api_key is only valid for tanmaykm/m4Builder; you need
+        # to make your own: https://docs.travis-ci.com/user/deployment/releases/
+        secure: h5HtRwMf/d5sILTdD2IoaBVCP7Nqx2nHnJe/SoC3g+jt5GkBNwEUs96g6CuoVQXJWyoKIG1dRnpwDl4R4agUPAICOiSaOeYnZfai/Rfl8Ssq2APg9+snXMUP849JgdULcLYhfksfUkvxnH7/G4R7MMRxjVMyO2R+aLKTLIQPw0ZfLgjHfj+7oKEvRvx2Kbg1gAms6usUjFortOfqzAhH6X5a6WTkBLr0l7nfMUACuO5vawttulGrQnJ7uZC37Ynm7rzWhtqW72pfBC4C3YR3QsE8qY1A2ED1LsNFIUNyOWOMpPY0GVfwLThuUpUGoImt9wwJfED7dVSzjiqxUjUJTjb6Py1LWaPQoqfId29vk7YRrT0g5HV41Xzk4Ko8ke4tlx22mh9M7fKFWfecq5OPCRRbs0MRlRxHMw2RdI2FdGXTNqsXFaN7YFFrDoujSZqjEcv/NKQGl+nSzAEMu/mulmN2+Ytt2TIjjFynxM2UYdfP5mAqcrfWbW/ppwW36bp8C2WlV4ImZBpPFdZhEudB7bStKFi21YJMzkYqaJHtDV+vkXLzb/0CW+5Gl+AohjKmqLbmNoa+zBP9vuX39QT2ZANX8JJCHYG7YAx26rOF9D/h+/1hukMgOVP2FLUSSBXmzKJDwzUgojKgyBkT2DicTOPf5/FRvQv4lptfebv8jV4=
+    file_glob: true
+    file: products/*
+    skip_cleanup: true
+    on:
+        repo: tanmaykm/m4Builder
+        tags: true
